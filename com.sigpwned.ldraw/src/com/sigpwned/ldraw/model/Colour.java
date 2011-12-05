@@ -1,6 +1,5 @@
 package com.sigpwned.ldraw.model;
 
-import com.sigpwned.ldraw.model.colour.Luminance;
 import com.sigpwned.ldraw.model.colour.Material;
 import com.sigpwned.ldraw.model.colour.RGBA;
 
@@ -8,11 +7,11 @@ public class Colour {
 	private String name;
 	private int code;
 	private Material material;
-	private Luminance luminance;
+	private Integer luminance;
 	private RGBA value;
 	private RGBA edge;
 	
-	public Colour(String name, int code, Material material, Luminance luminance, RGBA value, RGBA edge) {
+	public Colour(String name, int code, Material material, Integer luminance, RGBA value, RGBA edge) {
 		this.name = name;
 		this.code = code;
 		this.material = material;
@@ -33,7 +32,7 @@ public class Colour {
 		return material;
 	}
 
-	public Luminance getLuminance() {
+	public Integer getLuminance() {
 		return luminance;
 	}
 

@@ -1,12 +1,12 @@
-package com.sigpwned.ldraw.model.part.version;
+package com.sigpwned.ldraw.model.file.version;
 
-import com.sigpwned.ldraw.model.part.PartVersion;
+import com.sigpwned.ldraw.model.file.FileVersion;
 
-public class UpdatePartVersion extends PartVersion {
+public class UpdateRevisionFileVersion extends FileVersion {
 	private int year;
 	private int release;
 	
-	public UpdatePartVersion(int year, int release) {
+	public UpdateRevisionFileVersion(int year, int release) {
 		this.year = year;
 		this.release = release;
 	}

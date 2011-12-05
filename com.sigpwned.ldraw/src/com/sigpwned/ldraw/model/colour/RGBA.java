@@ -48,4 +48,24 @@ public class RGBA {
 	public Color toColor() {
 		return new Color(getRed(), getBlue(), getGreen(), getAlpha());
 	}
+	
+	public String toString() {
+		return getRGBString();
+	}
+	
+	public String getRGBString() {
+		StringBuilder result=new StringBuilder();
+		result.append("#");
+		if(getRed() < 16) result.append("0");
+		result.append(Integer.toString(getRed(), 16));
+		if(getGreen() < 16) result.append("0");
+		result.append(Integer.toString(getGreen(), 16));
+		if(getBlue() < 16) result.append("0");
+		result.append(Integer.toString(getBlue(), 16));
+		return result.toString();
+	}
+	
+	public boolean isAlphaDefined() {
+		return getAlpha() != 255;
+	}
 }

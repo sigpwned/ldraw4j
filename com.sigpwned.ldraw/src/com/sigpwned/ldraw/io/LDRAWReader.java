@@ -15,18 +15,28 @@ import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 import com.sigpwned.ldraw.io.x.MalformedFileLDRAWException;
-import com.sigpwned.ldraw.model.colour.Luminance;
+import com.sigpwned.ldraw.model.colour.ColourReference;
 import com.sigpwned.ldraw.model.colour.Material;
 import com.sigpwned.ldraw.model.colour.RGBA;
+import com.sigpwned.ldraw.model.colour.material.CustomMaterial;
+import com.sigpwned.ldraw.model.colour.material.GlitterMaterial;
+import com.sigpwned.ldraw.model.colour.material.SpeckleMaterial;
+import com.sigpwned.ldraw.model.colour.material.StockMaterial;
+import com.sigpwned.ldraw.model.colour.material.size.MinMaxSize;
+import com.sigpwned.ldraw.model.colour.material.size.SingleSize;
+import com.sigpwned.ldraw.model.colour.material.size.Size;
+import com.sigpwned.ldraw.model.colour.ref.CodeColourReference;
+import com.sigpwned.ldraw.model.colour.ref.RGBAColourReference;
+import com.sigpwned.ldraw.model.file.FileType;
+import com.sigpwned.ldraw.model.file.FileVersion;
+import com.sigpwned.ldraw.model.file.version.OriginalFileVersion;
+import com.sigpwned.ldraw.model.file.version.UpdateDateFileVersion;
+import com.sigpwned.ldraw.model.file.version.UpdateRevisionFileVersion;
 import com.sigpwned.ldraw.model.geometry.Matrix3f;
 import com.sigpwned.ldraw.model.geometry.Point3f;
 import com.sigpwned.ldraw.model.name.Name;
 import com.sigpwned.ldraw.model.name.RealName;
 import com.sigpwned.ldraw.model.name.UserName;
-import com.sigpwned.ldraw.model.part.PartType;
-import com.sigpwned.ldraw.model.part.PartVersion;
-import com.sigpwned.ldraw.model.part.version.OriginalPartVersion;
-import com.sigpwned.ldraw.model.part.version.UpdatePartVersion;
 import com.sigpwned.ldraw.model.winding.BFC;
 import com.sigpwned.ldraw.util.CollectionUtil;
 import com.sigpwned.ldraw.util.StringUtil;
@@ -168,12 +178,14 @@ public class LDRAWReader {
 	
 	private static final DateFormat DATE=new SimpleDateFormat("yyyy-MM-dd");
 
+	private static final Pattern INT=Pattern.compile("^\\d+$");
 	private static final Pattern COMMENT=Pattern.compile("^//");
 	private static final Pattern COMMAND=Pattern.compile("^(!\\w+|name:|author:|bfc\\b|clear\\b|pause\\b|print\\b|save\\b|step\\b|write\\b)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern AUTHOR_ARGS=Pattern.compile("^([^\\[]+?)\\s*(?:\\[([^\\]]+)\\])?$");
-	private static final Pattern LDRAW_ORG_ARGS=Pattern.compile("^(part|subpart|primitive|48_primitive|shortcut)\\s+(\\S.*?\\s+)?(original|update\\s+(\\d+)-(\\d+))$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern LDRAW_ORG_ARGS=Pattern.compile("^(part|subpart|primitive|48_primitive|shortcut|configuration)\\s+(\\S.*?\\s+)?(original|update\\s+(\\d+)-(\\d+)(?:-(\\d+)?))$", Pattern.CASE_INSENSITIVE);
 	private static final Pattern LICENSE_REDISTRIBUTABLE=Pattern.compile("(?!=not)\\s*redistributable", Pattern.CASE_INSENSITIVE);
 	private static final Pattern HISTORY_ARGS=Pattern.compile("^(\\d+-\\d+-\\d+)\\s+(\\[[^\\]]+\\]|\\{[^\\}]+\\})\\s+(.*?)\\s*$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern COLOUR_ARGS=Pattern.compile("^(.*?)\\s+CODE\\s+(\\d+)\\s+VALUE\\s+((?:0[xX]|#)[0-9A-Fa-f]{6})\\s+EDGE\\s+((?:0[xX]|#)[0-9A-Fa-f]{6}|\\d+)(?:\\s+ALPHA\\s+(\\d+))?(?:\\s+LUMINANCE\\s+(\\d+))?(?:\\s+(CHROME|PEARLESCENT|RUBBER|MATTE_METALLIC|METALLIC|METAL|MATERIAL\\s+.*?))?\\s*$");
 	protected void meta(String line) throws LDRAWException {
 		MatchResult m=StringUtil.match(line, COMMAND);
 		if(m != null) {
@@ -196,21 +208,23 @@ public class LDRAWReader {
 				String partTypeName=m.group(1).toLowerCase();
 				if(partTypeName.equals("48_primitive"))
 					partTypeName = "primitive48";
-				PartType partType=valueOf(PartType.class, partTypeName.toUpperCase());
+				FileType partType=valueOf(FileType.class, partTypeName.toUpperCase());
 
 				String qualifiers=m.group(2);
 
-				PartVersion partVersion;
+				FileVersion partVersion;
 				String partVersionText=m.group(3).toLowerCase();
 				if(partVersionText.equals("original"))
-					partVersion = OriginalPartVersion.getInstance();
+					partVersion = OriginalFileVersion.getInstance();
 				else
-					partVersion = new UpdatePartVersion(Integer.parseInt(m.group(4)), Integer.parseInt(m.group(5)));
+				if(m.group(6) != null) {
+					String dateline=m.group(4)+"-"+m.group(5)+"-"+m.group(6);
+					partVersion = new UpdateDateFileVersion(d(dateline, DATE, "Invalid date in LDRAW_ORG line: "+dateline));
+				}
+				else
+					partVersion = new UpdateRevisionFileVersion(Integer.parseInt(m.group(4)), Integer.parseInt(m.group(5)));
 				
 				handler.ldraworg(partType, qualifiers, partVersion);
-			} else
-			if(command.equals("!license")) {
-				handler.license(arguments, StringUtil.match(arguments, LICENSE_REDISTRIBUTABLE)!=null);
 			} else
 			if(command.equals("!bfc") || command.equals("bfc")) {
 				String bfcName=CollectionUtil.join(StringUtil.toUpperCase(StringUtil.words(arguments)), "_");
@@ -233,6 +247,43 @@ public class LDRAWReader {
 				
 				handler.history(date, name, message);
 			} else
+			if(command.equals("!colour")) {
+				m = require(arguments, COLOUR_ARGS, "Malformed COLOUR line: "+arguments);
+				
+				String name=m.group(1);
+				int code=Integer.parseInt(m.group(2));
+				
+				ColourReference edge;
+				if(StringUtil.match(m.group(4), INT) != null)
+					edge = new CodeColourReference(Integer.parseInt(m.group(4)));
+				else
+					edge = new RGBAColourReference(rgba(m.group(4), null));
+				
+				Integer alpha;
+				if(m.group(5) != null)
+					alpha = Integer.parseInt(m.group(5));
+				else
+					alpha = null;
+				
+				RGBA value=rgba(m.group(3), alpha);
+				
+				Integer luminance;
+				if(m.group(6) != null)
+					luminance = Integer.parseInt(m.group(6));
+				else
+					luminance = null;
+				
+				Material material;
+				if(m.group(7) != null)
+					material = material(m.group(7));
+				else
+					material = null;
+				
+				handler.colour(name, code, value, edge, luminance, material);
+			} else
+			if(command.equals("!license"))
+				handler.license(arguments, StringUtil.match(arguments, LICENSE_REDISTRIBUTABLE)!=null);
+			else
 			if(command.equals("!category"))
 				handler.category(arguments);
 			else
@@ -319,6 +370,110 @@ public class LDRAWReader {
 		return result;
 	}
 	
+	private static RGBA rgba(String rgb0, Integer a) throws LDRAWException {
+		String rgb=rgb0;
+		if(rgb.startsWith("0x") || rgb.startsWith("0X"))
+			rgb = rgb.substring(2, rgb.length());
+		if(rgb.startsWith("#"))
+			rgb = rgb.substring(1, rgb.length());
+		if(rgb.length() != 6)
+			throw new MalformedFileLDRAWException("Invalid RGB value: "+rgb0);
+		
+		return RGBA.rgba(
+			Integer.parseInt(rgb.substring(0, 2), 16),
+			Integer.parseInt(rgb.substring(2, 4), 16),
+			Integer.parseInt(rgb.substring(4, 6), 16),
+			a!=null ? a.intValue() & 0xFF : 255
+		);
+	}
+	
+	private static final Pattern MATERIAL=Pattern.compile("^(CHROME|PEARLESCENT|RUBBER|MATTE_METALLIC|METAL|MATERIAL)(\\s+.*?)?\\s*$");
+	private static final Pattern GLITTER=Pattern.compile("^GLITTER\\s+VALUE\\s+((?:0x|#)[0-9A-Fa-f]{6})\\s+(?:ALPHA\\s+(\\d+)\\s+)?(?:LUMINANCE\\s+(\\d+)\\s+)?FRACTION\\s+(\\d+\\.\\d*)\\s+VFRACTION\\s+(\\d+\\.\\d*)\\s+(SIZE.*?|MINSIZE.*?)\\s*$");
+	private static final Pattern SPECKLE=Pattern.compile("^SPECKLE\\s+VALUE\\s+((?:0x|#)[0-9A-Fa-f]{6})\\s+(?:ALPHA\\s+(\\d+)\\s+)?(?:LUMINANCE\\s+(\\d+)\\s+)?FRACTION\\s+(\\d+\\.\\d*)\\s+(SIZE.*?|MINSIZE.*?)\\s*$");
+	private static Material material(String material) throws LDRAWException {
+		MatchResult m=require(material, MATERIAL, "Invalid material syntax: "+material);
+		
+		Material result;
+		try {
+			result = StockMaterial.valueOf(m.group(1));
+		}
+		catch(IllegalArgumentException e) {
+			result = null;
+		}
+		
+		if(result == null) {
+			String type=m.group(1);
+			if(!type.equals("MATERIAL"))
+				throw new MalformedFileLDRAWException("Invalid stock material: "+type);
+			
+			String arguments=m.group(2);
+			if(arguments == null)
+				throw new MalformedFileLDRAWException("MATERIALS clause requires arguments: "+material);
+			
+			if((m = StringUtil.match(arguments, GLITTER)) != null) {
+				Integer alpha;
+				if(m.group(2) != null)
+					alpha = Integer.parseInt(m.group(2));
+				else
+					alpha = null;
+				RGBA value=rgba(m.group(1), alpha);
+				
+				Integer luminance;
+				if(m.group(3) != null)
+					luminance = Integer.parseInt(m.group(6));
+				else
+					luminance = null;
+				
+				float fraction=Float.parseFloat(m.group(4));
+				float vfraction=Float.parseFloat(m.group(5));
+				
+				Size size=size(m.group(6));
+				
+				result = new GlitterMaterial(value, luminance, fraction, vfraction, size);
+			} else
+			if((m = StringUtil.match(arguments, SPECKLE)) != null) {
+				Integer alpha;
+				if(m.group(2) != null)
+					alpha = Integer.parseInt(m.group(2));
+				else
+					alpha = null;
+				RGBA value=rgba(m.group(1), alpha);
+				
+				Integer luminance;
+				if(m.group(3) != null)
+					luminance = Integer.parseInt(m.group(6));
+				else
+					luminance = null;
+				
+				float fraction=Float.parseFloat(m.group(4));
+				
+				Size size=size(m.group(5));
+				
+				result = new SpeckleMaterial(value, luminance, fraction, size);
+			}
+			else
+				result = new CustomMaterial(arguments);
+		}
+		
+		return result;
+	}
+	
+	private static final Pattern SIZE=Pattern.compile("^SIZE\\s+(\\d+)|MINSIZE\\s+(\\d+)\\s+MAXSIZE\\s+(\\d+)\\s*$");
+	private static Size size(String size) throws LDRAWException {
+		MatchResult m=require(size, SIZE, "Invalid material size: "+size);
+		
+		Size result;
+		if(m.group(1) != null)
+			result = new SingleSize(Integer.parseInt(m.group(1)));
+		else
+		if(m.group(2) != null)
+			result = new MinMaxSize(Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)));
+		else
+			throw new InternalLDRAWException("Did not parse size: "+size);
+		
+		return result;
+	}
+	
 	public static void main(String[] args) {
 		try {
 			final Writer out=new OutputStreamWriter(System.out);
@@ -343,7 +498,7 @@ public class LDRAWReader {
 						line = line+" ["+userName.getName()+"]";
 					println(line);
 				}
-				public void ldraworg(PartType partType, String qualifiers, PartVersion version) throws LDRAWException {
+				public void ldraworg(FileType partType, String qualifiers, FileVersion version) throws LDRAWException {
 					String line="0 !LDRAW_ORG "+partType.toString()+" ";
 					if(qualifiers != null)
 						line = line+qualifiers+" ";
@@ -375,7 +530,15 @@ public class LDRAWReader {
 				public void clear() throws LDRAWException {
 					println("0 !CLEAR");
 				}
-				public void colour(String name, int code, RGBA value, Luminance luminance, Material material) throws LDRAWException {
+				public void colour(String name, int code, RGBA value, ColourReference edge, Integer luminance, Material material) throws LDRAWException {
+					String line="0 !COLOUR "+name+" CODE "+code+" VALUE "+value.getRGBString()+" EDGE "+edge;
+					if(value.isAlphaDefined())
+						line = line+" ALPHA "+value.getAlpha();
+					if(luminance != null)
+						line = line+" LUMINANCE "+luminance;
+					if(material != null)
+						line = line+" "+material;
+					println("0 !COLOUR "+line);
 				}
 				public void pause() throws LDRAWException {
 				}
@@ -417,7 +580,8 @@ public class LDRAWReader {
 				public void comment(String comment) throws LDRAWException {
 				}
 			});
-			reader.read(new FileReader("/Users/aboothe/Documents/workspaces/lego/legocad/LDRAW/ldraw/parts/154.dat"));
+//			reader.read(new FileReader("/Users/aboothe/Documents/workspaces/lego/legocad/LDRAW/ldraw/parts/154.dat"));
+			reader.read(new FileReader("/Users/aboothe/Documents/workspaces/lego/legocad/LDRAW/ldraw/LDConfig.ldr"));
 		}
 		catch(Exception e) {
 			e.printStackTrace();

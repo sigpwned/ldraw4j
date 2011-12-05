@@ -1,16 +1,15 @@
 package com.sigpwned.ldraw.model.colour.material;
 
-import com.sigpwned.ldraw.model.colour.Luminance;
 import com.sigpwned.ldraw.model.colour.RGBA;
 import com.sigpwned.ldraw.model.colour.material.size.Size;
 
 public class SpeckleMaterial extends AbstractMaterial {
 	private RGBA value;
-	private Luminance luminance;
+	private Integer luminance;
 	private float fraction;
 	private Size size;
 	
-	public SpeckleMaterial(RGBA value, Luminance luminance, float fraction, Size size) {
+	public SpeckleMaterial(RGBA value, Integer luminance, float fraction, Size size) {
 		this.value = value;
 		this.luminance = luminance;
 		this.fraction = fraction;
@@ -21,7 +20,7 @@ public class SpeckleMaterial extends AbstractMaterial {
 		return value;
 	}
 
-	public Luminance getLuminance() {
+	public Integer getLuminance() {
 		return luminance;
 	}
 
@@ -31,5 +30,18 @@ public class SpeckleMaterial extends AbstractMaterial {
 
 	public Size getSize() {
 		return size;
+	}
+	
+	public String toString() {
+		StringBuilder result=new StringBuilder();
+		result.append("MATERIAL SPECKLE VALUE ");
+		result.append(getValue().getRGBString());
+		if(getValue().isAlphaDefined())
+			result.append(" ALPHA "+getValue().getAlpha());
+		if(getLuminance() != null)
+			result.append(" LUMINANCE "+getLuminance().intValue());
+		result.append(" FRACTION "+getFraction());
+		result.append(" "+getSize());
+		return result.toString();
 	}
 }

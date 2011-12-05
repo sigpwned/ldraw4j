@@ -3,16 +3,16 @@ package com.sigpwned.ldraw.io;
 import java.util.Date;
 import java.util.List;
 
-import com.sigpwned.ldraw.model.colour.Luminance;
+import com.sigpwned.ldraw.model.colour.ColourReference;
 import com.sigpwned.ldraw.model.colour.Material;
 import com.sigpwned.ldraw.model.colour.RGBA;
+import com.sigpwned.ldraw.model.file.FileType;
+import com.sigpwned.ldraw.model.file.FileVersion;
 import com.sigpwned.ldraw.model.geometry.Matrix3f;
 import com.sigpwned.ldraw.model.geometry.Point3f;
 import com.sigpwned.ldraw.model.name.Name;
 import com.sigpwned.ldraw.model.name.RealName;
 import com.sigpwned.ldraw.model.name.UserName;
-import com.sigpwned.ldraw.model.part.PartType;
-import com.sigpwned.ldraw.model.part.PartVersion;
 import com.sigpwned.ldraw.model.winding.BFC;
 import com.sigpwned.ldraw.x.LDRAWException;
 
@@ -38,7 +38,7 @@ public interface LDRAWHandler {
 	
 	public void keywords(List<String> keywords) throws LDRAWException;
 	
-	public void ldraworg(PartType partType, String qualifiers, PartVersion partVersion) throws LDRAWException;
+	public void ldraworg(FileType partType, String qualifiers, FileVersion partVersion) throws LDRAWException;
 	
 	public void license(String licenseStatement, boolean redistributable) throws LDRAWException;
 
@@ -51,7 +51,7 @@ public interface LDRAWHandler {
 	///////////////////////////////////////////////////////////////////////////
 	public void clear() throws LDRAWException;
 	
-	public void colour(String name, int code, RGBA value, Luminance luminance, Material material) throws LDRAWException;
+	public void colour(String name, int code, RGBA value, ColourReference edge, Integer luminance, Material material) throws LDRAWException;
 	
 	public void pause() throws LDRAWException;
 	

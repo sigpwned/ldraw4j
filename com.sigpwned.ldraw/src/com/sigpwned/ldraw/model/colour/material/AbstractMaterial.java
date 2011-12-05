@@ -18,4 +18,6 @@ public abstract class AbstractMaterial implements Material {
 	public StockMaterial asStock() {
 		throw new ClassCastException();
 	}
+	
+	public abstract String toString();
 }

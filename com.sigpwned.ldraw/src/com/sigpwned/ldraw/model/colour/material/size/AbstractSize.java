@@ -8,4 +8,6 @@ public abstract class AbstractSize implements Size {
 	public MinMaxSize asMinMax() {
 		return (MinMaxSize) this;
 	}
+
+	public abstract String toString();
 }

@@ -1,13 +1,17 @@
 package com.sigpwned.ldraw.model.colour.material.size;
 
 public class SingleSize extends AbstractSize {
-	private int value;
+	private int size;
 	
-	public SingleSize(int value) {
-		this.value = value;
+	public SingleSize(int size) {
+		this.size = size;
 	}
 	
-	public int getValue() {
-		return value;
+	public int getSize() {
+		return size;
+	}
+	
+	public String toString() {
+		return "SIZE "+getSize();
 	}
 }

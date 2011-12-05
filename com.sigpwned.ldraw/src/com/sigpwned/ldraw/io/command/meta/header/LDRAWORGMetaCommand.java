@@ -1,20 +1,20 @@
 package com.sigpwned.ldraw.io.command.meta.header;
 
-import com.sigpwned.ldraw.model.part.PartType;
-import com.sigpwned.ldraw.model.part.PartVersion;
+import com.sigpwned.ldraw.model.file.FileType;
+import com.sigpwned.ldraw.model.file.FileVersion;
 
 public class LDRAWORGMetaCommand extends AbstractHeaderMetaCommand {
-	private PartType partType;
+	private FileType partType;
 	private String qualifiers;
-	private PartVersion partVersion;
+	private FileVersion partVersion;
 	
-	public LDRAWORGMetaCommand(PartType partType, String qualifiers, PartVersion partVersion) {
+	public LDRAWORGMetaCommand(FileType partType, String qualifiers, FileVersion partVersion) {
 		this.partType = partType;
 		this.qualifiers = qualifiers;
 		this.partVersion = partVersion;
 	}
 
-	public PartType getPartType() {
+	public FileType getPartType() {
 		return partType;
 	}
 
@@ -22,7 +22,7 @@ public class LDRAWORGMetaCommand extends AbstractHeaderMetaCommand {
 		return qualifiers;
 	}
 
-	public PartVersion getPartVersion() {
+	public FileVersion getPartVersion() {
 		return partVersion;
 	}
 }

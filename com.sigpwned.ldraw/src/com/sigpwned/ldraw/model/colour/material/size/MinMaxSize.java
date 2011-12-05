@@ -1,19 +1,23 @@
 package com.sigpwned.ldraw.model.colour.material.size;
 
 public class MinMaxSize extends AbstractSize {
-	private int minValue;
-	private int maxValue;
+	private int minSize;
+	private int maxSize;
 	
-	public MinMaxSize(int minValue, int maxValue) {
-		this.minValue = minValue;
-		this.maxValue = maxValue;
+	public MinMaxSize(int minSize, int maxSize) {
+		this.minSize = minSize;
+		this.maxSize = maxSize;
 	}
 	
-	public int getMinValue() {
-		return minValue;
+	public int getMinSize() {
+		return minSize;
 	}
 	
-	public int getMaxValue() {
-		return maxValue;
+	public int getMaxSize() {
+		return maxSize;
+	}
+	
+	public String toString() {
+		return "MINSIZE "+getMinSize()+" MAXSIZE "+getMaxSize();
 	}
 }

@@ -11,4 +11,8 @@ public class CustomMaterial extends AbstractMaterial {
 	public String getParams() {
 		return params;
 	}
+
+	public String toString() {
+		return "MATERIAL "+getParams();
+	}
 }

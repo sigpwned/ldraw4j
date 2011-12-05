@@ -20,4 +20,8 @@ public enum StockMaterial implements Material {
 	public StockMaterial asStock() {
 		return this;
 	}
+	
+	public String toString() {
+		return name();
+	}
 }
