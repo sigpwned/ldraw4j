@@ -10,8 +10,12 @@ public class Point3f {
 		this.xyz = xyz;
 	}
 	
+	public float[] get() {
+		return xyz;
+	}
+	
 	public float get(int i) {
-		return xyz[i];
+		return get()[i];
 	}
 
 	public float x() {

@@ -2,7 +2,7 @@ package com.sigpwned.ldraw.model.winding;
 
 public enum BFC {
 	CERTIFY("CERTIFY"), CERTIFY_CW("CERTIFY CW"), CERTIFY_CCW("CERTIFY CCW"), NOCERTIFY("NOCERTIFY"),
-	CW("CW"), CCW("CCW"), CLIP("CLIP"), CLIP_CW("CLIP CW"), CLIP_CCW("CLIP CCW"), NOCLIP("NOCLIP"), INVERTNEXT("INVERTNEXT");
+	CW("CW"), CCW("CCW"), CLIP("CLIP"), NOCLIP("NOCLIP"), INVERTNEXT("INVERTNEXT");
 
 	private String value;
 	
