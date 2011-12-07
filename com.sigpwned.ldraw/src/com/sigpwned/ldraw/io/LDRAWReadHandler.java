@@ -20,7 +20,7 @@ import com.sigpwned.ldraw.x.LDRAWException;
  * Process a file in LDRAW format. The file format is documented pretty well on
  * <a href="http://www.ldraw.org/Article218.html">the LDRAW website</a>.
  */
-public interface LDRAWHandler {
+public interface LDRAWReadHandler {
 	///////////////////////////////////////////////////////////////////////////
 	// HEADER META COMMANDS ///////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ public interface LDRAWHandler {
 	///////////////////////////////////////////////////////////////////////////
 	public void subfile(int colour, Point3f location, Matrix3f rotation, String file) throws LDRAWException;
 	
-	public void line(int colour, Point3f p1, Point3f p2) throws LDRAWException;
+	public void line(int colour, Point3f[] line) throws LDRAWException;
 	
 	public void triangle(int colour, Point3f[] triangle) throws LDRAWException;
 

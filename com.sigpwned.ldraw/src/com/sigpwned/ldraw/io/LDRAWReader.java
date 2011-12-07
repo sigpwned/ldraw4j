@@ -46,11 +46,11 @@ import com.sigpwned.ldraw.x.LeakedLDRAWException;
 
 
 public class LDRAWReader {
-	private LDRAWHandler handler;
+	private LDRAWReadHandler handler;
 	private BufferedReader lines;
 	private int lineno;
 	
-	public LDRAWReader(LDRAWHandler handler) {
+	public LDRAWReader(LDRAWReadHandler handler) {
 		this.handler = handler;
 	}
 	
@@ -149,10 +149,10 @@ public class LDRAWReader {
 		MatchResult m=require(line, LINEPAT, "Malformed line line: "+line);
 		
 		int colour=Integer.parseInt(m.group(1));
-		Point3f p1=p(m, 2);
-		Point3f p2=p(m, 5);
 		
-		handler.line(colour, p1, p2);
+		handler.line(colour, new Point3f[] {
+			p(m, 2), p(m, 5)
+		});
 	}
 
 	private static final Pattern SUBFILE=Pattern.compile("^(\\d+)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+(.*?)\\s*$");
@@ -182,7 +182,7 @@ public class LDRAWReader {
 	private static final Pattern COMMENT=Pattern.compile("^//");
 	private static final Pattern COMMAND=Pattern.compile("^(!\\w+|name:|author:|bfc\\b|clear\\b|pause\\b|print\\b|save\\b|step\\b|write\\b)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern AUTHOR_ARGS=Pattern.compile("^([^\\[]+?)\\s*(?:\\[([^\\]]+)\\])?$");
-	private static final Pattern LDRAW_ORG_ARGS=Pattern.compile("^(part|subpart|primitive|48_primitive|shortcut|configuration)\\s+(\\S.*?\\s+)?(original|update\\s+(\\d+)-(\\d+)(?:-(\\d+)?))$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern LDRAW_ORG_ARGS=Pattern.compile("^(part|subpart|primitive|48_primitive|shortcut|configuration)\\s+(\\S.*?\\s+)?(original|update\\s+(\\d+)-(\\d+)(?:-(\\d+))?)$", Pattern.CASE_INSENSITIVE);
 	private static final Pattern LICENSE_REDISTRIBUTABLE=Pattern.compile("(?!=not)\\s*redistributable", Pattern.CASE_INSENSITIVE);
 	private static final Pattern HISTORY_ARGS=Pattern.compile("^(\\d+-\\d+-\\d+)\\s+(\\[[^\\]]+\\]|\\{[^\\}]+\\})\\s+(.*?)\\s*$", Pattern.CASE_INSENSITIVE);
 	private static final Pattern COLOUR_ARGS=Pattern.compile("^(.*?)\\s+CODE\\s+(\\d+)\\s+VALUE\\s+((?:0[xX]|#)[0-9A-Fa-f]{6})\\s+EDGE\\s+((?:0[xX]|#)[0-9A-Fa-f]{6}|\\d+)(?:\\s+ALPHA\\s+(\\d+))?(?:\\s+LUMINANCE\\s+(\\d+))?(?:\\s+(CHROME|PEARLESCENT|RUBBER|MATTE_METALLIC|METALLIC|METAL|MATERIAL\\s+.*?))?\\s*$");
@@ -477,7 +477,7 @@ public class LDRAWReader {
 	public static void main(String[] args) {
 		try {
 			final Writer out=new OutputStreamWriter(System.out);
-			LDRAWReader reader=new LDRAWReader(new LDRAWHandler() {
+			LDRAWReader reader=new LDRAWReader(new LDRAWReadHandler() {
 				private void println(String message) throws LDRAWException {
 					try {
 						out.write(message); out.write('\n'); out.flush();
@@ -556,8 +556,11 @@ public class LDRAWReader {
 				public void subfile(int colour, Point3f location, Matrix3f rotation, String file) throws LDRAWException {
 					println("1 "+colour+" "+location+" "+rotation+" "+file);
 				}
-				public void line(int colour, Point3f p1, Point3f p2) throws LDRAWException {
-					println("2 "+colour+" "+p1+" "+p2);
+				public void line(int colour, Point3f[] line) throws LDRAWException {
+					String l="2 "+colour;
+					for(Point3f p : line)
+						l = l+" "+p;
+					println(l);
 				}
 				public void triangle(int colour, Point3f[] triangle) throws LDRAWException {
 					String line="3 "+colour;
