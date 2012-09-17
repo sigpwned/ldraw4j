@@ -1,5 +1,6 @@
 package com.sigpwned.ldraw.io;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public interface LDRAWReadHandler {
 	///////////////////////////////////////////////////////////////////////////
 	// MODEL //////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
-	public void subfile(int colour, Point3f location, Matrix3f rotation, String file) throws LDRAWException;
+	public void subfile(int colour, Point3f location, Matrix3f rotation, String file) throws IOException, LDRAWException;
 	
 	public void line(int colour, Point3f[] line) throws LDRAWException;
 	
@@ -79,7 +80,7 @@ public interface LDRAWReadHandler {
 
 	public void quadrilateral(int colour, Point3f[] quad) throws LDRAWException;
 	
-	public void optionalLine(int colour, Point3f[] line) throws LDRAWException;
+	public void optionalLine(int colour, Point3f[] line, Point3f[] control) throws LDRAWException;
 
 	///////////////////////////////////////////////////////////////////////////
 	// OTHER //////////////////////////////////////////////////////////////////

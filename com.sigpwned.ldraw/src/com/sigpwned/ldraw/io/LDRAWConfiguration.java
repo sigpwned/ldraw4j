@@ -16,6 +16,7 @@ import com.sigpwned.ldraw.model.colour.Material;
 import com.sigpwned.ldraw.model.colour.RGBA;
 import com.sigpwned.ldraw.model.colour.ref.CodeColourReference;
 import com.sigpwned.ldraw.model.colour.ref.RGBAColourReference;
+import com.sigpwned.ldraw.model.geometry.Point3f;
 import com.sigpwned.ldraw.x.InternalLDRAWException;
 import com.sigpwned.ldraw.x.LDRAWException;
 

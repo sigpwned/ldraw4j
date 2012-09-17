@@ -108,19 +108,22 @@ public class LDRAWReader {
 		}
 	}
 	
-	private static final Pattern OPTIONALLINE=Pattern.compile("^(\\d+)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s*$");
+	private static final Pattern OPTIONALLINE=Pattern.compile("^(\\d+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s*$");
 	private void optionalLine(String line) throws LDRAWException {
 		MatchResult m=require(line, OPTIONALLINE, "Malformed optionalLine line: "+line);
 		
 		int colour=Integer.parseInt(m.group(1));
-		Point3f[] triangle=new Point3f[] {
-			p(m, 2), p(m, 5), p(m, 8), p(m, 11)
+		Point3f[] points=new Point3f[] {
+			p(m, 2), p(m, 5)
+		};
+		Point3f[] controlPoints=new Point3f[] {
+			p(m, 8), p(m, 11)
 		};
 		
-		handler.optionalLine(colour, triangle);
+		handler.optionalLine(colour, points, controlPoints);
 	}
 
-	private static final Pattern QUAD=Pattern.compile("^(\\d+)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s*$");
+	private static final Pattern QUAD=Pattern.compile("^(\\d+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s*$");
 	private void quadrilateral(String line) throws LDRAWException {
 		MatchResult m=require(line, QUAD, "Malformed quadrilateral line: "+line);
 		
@@ -132,7 +135,7 @@ public class LDRAWReader {
 		handler.quadrilateral(colour, triangle);
 	}
 
-	private static final Pattern TRIANGLE=Pattern.compile("^(\\d+)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s*$");
+	private static final Pattern TRIANGLE=Pattern.compile("^(\\d+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s*$");
 	private void triangle(String line) throws LDRAWException {
 		MatchResult m=require(line, TRIANGLE, "Malformed triangle line: "+line);
 		
@@ -144,7 +147,7 @@ public class LDRAWReader {
 		handler.triangle(colour, triangle);
 	}
 
-	private static final Pattern LINEPAT=Pattern.compile("^(\\d+)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([+-]?\\d+(?:.\\d*)?)\\s*$");
+	private static final Pattern LINEPAT=Pattern.compile("^(\\d+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s*$");
 	private void line(String line) throws LDRAWException {
 		MatchResult m=require(line, LINEPAT, "Malformed line line: "+line);
 		
@@ -155,8 +158,8 @@ public class LDRAWReader {
 		});
 	}
 
-	private static final Pattern SUBFILE=Pattern.compile("^(\\d+)\\s+([+-]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+(.*?)\\s*$");
-	private void subfile(String line) throws LDRAWException {
+	private static final Pattern SUBFILE=Pattern.compile("^(\\d+)\\s+([+-]?[\\d.]+)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+([-+]?\\d+(?:.\\d*)?)\\s+(.*?)\\s*$");
+	private void subfile(String line) throws LDRAWException, IOException {
 		MatchResult m=require(line, SUBFILE, "Malformed subfile line: "+line);
 		
 		int colour=Integer.parseInt(m.group(1));
@@ -181,7 +184,7 @@ public class LDRAWReader {
 	private static final Pattern INT=Pattern.compile("^\\d+$");
 	private static final Pattern COMMENT=Pattern.compile("^//");
 	private static final Pattern COMMAND=Pattern.compile("^(!\\w+|name:|author:|bfc\\b|clear\\b|pause\\b|print\\b|save\\b|step\\b|write\\b)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern AUTHOR_ARGS=Pattern.compile("^([^\\[]+?)\\s*(?:\\[([^\\]]+)\\])?$");
+	private static final Pattern AUTHOR_ARGS=Pattern.compile("^([^\\[]+?)?\\s*(?:\\[([^\\]]+)\\])?$");
 	private static final Pattern LDRAW_ORG_ARGS=Pattern.compile("^(part|subpart|primitive|48_primitive|shortcut|configuration)\\s+(\\S.*?\\s+)?(original|update\\s+(\\d+)-(\\d+)(?:-(\\d+))?)$", Pattern.CASE_INSENSITIVE);
 	private static final Pattern LICENSE_REDISTRIBUTABLE=Pattern.compile("(?!=not)\\s*redistributable", Pattern.CASE_INSENSITIVE);
 	private static final Pattern HISTORY_ARGS=Pattern.compile("^(\\d+-\\d+-\\d+)\\s+(\\[[^\\]]+\\]|\\{[^\\}]+\\})\\s+(.*?)\\s*$", Pattern.CASE_INSENSITIVE);
@@ -574,9 +577,11 @@ public class LDRAWReader {
 						line = line+" "+p;
 					println(line);
 				}
-				public void optionalLine(int colour, Point3f[] line) throws LDRAWException {
+				public void optionalLine(int colour, Point3f[] line, Point3f[] controlPoints) throws LDRAWException {
 					String l="5 "+colour;
 					for(Point3f p : line)
+						l = l+" "+p;
+					for(Point3f p : controlPoints)
 						l = l+" "+p;
 					println(l);
 				}
@@ -584,7 +589,8 @@ public class LDRAWReader {
 				}
 			});
 //			reader.read(new FileReader("/Users/aboothe/Documents/workspaces/lego/legocad/LDRAW/ldraw/parts/154.dat"));
-			reader.read(new FileReader("/Users/aboothe/Documents/workspaces/lego/legocad/LDRAW/ldraw/LDConfig.ldr"));
+			reader.read(new FileReader("/Users/aboothe/Documents/workspaces/lego/legocad/LDRAW/ldraw/parts/85863.dat"));
+//			reader.read(new FileReader("/Users/aboothe/Documents/workspaces/lego/legocad/LDRAW/ldraw/LDConfig.ldr"));
 		}
 		catch(Exception e) {
 			e.printStackTrace();

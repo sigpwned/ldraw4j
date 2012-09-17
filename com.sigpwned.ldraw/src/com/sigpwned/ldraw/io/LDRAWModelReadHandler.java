@@ -15,5 +15,9 @@ public interface LDRAWModelReadHandler {
 
 	public void quadrilateral(ModelState modelState, Colour colour, Point3f[] line);
 
-	public void optionalLine(ModelState modelState, Colour colour, Point3f[] line);
+	public void optionalLine(ModelState modelState, Colour colour, Point3f[] line, Point3f[] controlPoints);
+	
+	public void enterFile(String name);
+
+	public void leaveFile(String name);
 }
