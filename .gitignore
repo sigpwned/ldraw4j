@@ -1,8 +1,15 @@
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Eclipse Settings Files #
 /.project
 /.classpath
 /.settings
 /target
-*.class
+
+# Others #
 *.zip
-
-
