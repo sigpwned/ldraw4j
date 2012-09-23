@@ -17,3 +17,10 @@ renderings, like the one below:
 Please note that LDRAW4J implements the *file reading engine only.*
 The rendering engine is left as an "exercise for the reader," although
 I hope to have some code to that effect to share soon, as well.
+
+LDRAW4J is released under [the Apache 2.0
+license](http://www.apache.org/licenses/LICENSE-2.0.html), so please
+feel free to use this code however you like as long as you retain an
+attribution back to me and this project. Also, if you end up using
+LDRAW4J, I'd love to know about it, so I'd consider it a courtesy if
+you dropped me a line on Twitter @sigpwned! :)
