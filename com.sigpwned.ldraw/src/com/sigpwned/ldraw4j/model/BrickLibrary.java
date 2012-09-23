@@ -1,19 +1,12 @@
 package com.sigpwned.ldraw4j.model;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Set;
 import java.util.TreeSet;
 
 import com.sigpwned.ldraw4j.x.InternalLDRAWException;
 
 public class BrickLibrary {
-	private static final FilenameFilter DATFILES=new FilenameFilter() {
-		public boolean accept(File parent, String name) {
-			return name.endsWith(".dat") || name.endsWith(".DAT");
-		}
-	};
-	
 	public static BrickLibrary scan(File home) {
 		return new BrickLibrary(home, scan(home, new StringBuilder(), new TreeSet<String>()));
 	}
@@ -50,5 +43,9 @@ public class BrickLibrary {
 	
 	public File getHome() {
 		return home;
+	}
+
+	public Set<String> getEntries() {
+		return entries;
 	}
 }

@@ -6,15 +6,11 @@ import java.io.IOException;
 import java.io.Reader;
 
 import com.sigpwned.ldraw4j.io.handle.ldraw.AbstractLDRAWReadHandler;
-import com.sigpwned.ldraw4j.io.x.NoSuchColourLDRAWException;
 import com.sigpwned.ldraw4j.model.Colour;
 import com.sigpwned.ldraw4j.model.colour.ColourReference;
 import com.sigpwned.ldraw4j.model.colour.Colours;
 import com.sigpwned.ldraw4j.model.colour.Material;
 import com.sigpwned.ldraw4j.model.colour.RGBA;
-import com.sigpwned.ldraw4j.model.colour.ref.CodeColourReference;
-import com.sigpwned.ldraw4j.model.colour.ref.RGBAColourReference;
-import com.sigpwned.ldraw4j.x.InternalLDRAWException;
 import com.sigpwned.ldraw4j.x.LDRAWException;
 
 public class LDRAWConfiguration {
