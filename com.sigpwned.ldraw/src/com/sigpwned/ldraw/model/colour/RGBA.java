@@ -70,6 +70,29 @@ public class RGBA {
 	}
 	
 	public int hashCode() {
-		return toString().hashCode();
+		return rgba;
+	}
+	
+	public boolean equals(Object other) {
+		boolean result;
+		
+		if(this == other)
+			result = true;
+		else
+		if(other == null)
+			result = false;
+		else
+		if(other instanceof RGBA) {
+			RGBA otherp=(RGBA) other;
+			result = true;
+			result = result && getRed()==otherp.getRed();
+			result = result && getGreen()==otherp.getGreen();
+			result = result && getBlue()==otherp.getBlue();
+			result = result && getAlpha()==otherp.getAlpha();
+		}
+		else
+			result = false;
+		
+		return result;
 	}
 }
