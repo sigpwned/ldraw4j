@@ -120,7 +120,7 @@ public class LDRAWReader {
 			p(m, 8), p(m, 11)
 		};
 		
-		handler.optionalLine(colour, points, controlPoints);
+		handler.optionalLine(new CodeColourReference(colour), points, controlPoints);
 	}
 
 	private static final Pattern QUAD=Pattern.compile("^(\\d+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s*$");
@@ -132,7 +132,7 @@ public class LDRAWReader {
 			p(m, 2), p(m, 5), p(m, 8), p(m, 11)
 		};
 		
-		handler.quadrilateral(colour, triangle);
+		handler.quadrilateral(new CodeColourReference(colour), triangle);
 	}
 
 	private static final Pattern TRIANGLE=Pattern.compile("^(\\d+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s*$");
@@ -144,7 +144,7 @@ public class LDRAWReader {
 			p(m, 2), p(m, 5), p(m, 8)
 		};
 		
-		handler.triangle(colour, triangle);
+		handler.triangle(new CodeColourReference(colour), triangle);
 	}
 
 	private static final Pattern LINEPAT=Pattern.compile("^(\\d+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s+([+-]?[\\d.]+)\\s*$");
@@ -153,7 +153,7 @@ public class LDRAWReader {
 		
 		int colour=Integer.parseInt(m.group(1));
 		
-		handler.line(colour, new Point3f[] {
+		handler.line(new CodeColourReference(colour), new Point3f[] {
 			p(m, 2), p(m, 5)
 		});
 	}
@@ -176,7 +176,7 @@ public class LDRAWReader {
 		
 		String file=m.group(14);
 		
-		handler.subfile(colour, location, rotation, file);
+		handler.subfile(new CodeColourReference(colour), location, rotation, file);
 	}
 	
 	private static final DateFormat DATE=new SimpleDateFormat("yyyy-MM-dd");
@@ -251,6 +251,9 @@ public class LDRAWReader {
 				handler.history(date, name, message);
 			} else
 			if(command.equals("!colour")) {
+				// Man, this command is a thing. Have a look at this page for details:
+				// http://www.ldraw.org/article/547.html
+				
 				m = require(arguments, COLOUR_ARGS, "Malformed COLOUR line: "+arguments);
 				
 				String name=m.group(1);
@@ -556,28 +559,28 @@ public class LDRAWReader {
 				}
 				public void meta(String line) throws LDRAWException {
 				}
-				public void subfile(int colour, Point3f location, Matrix3f rotation, String file) throws LDRAWException {
+				public void subfile(ColourReference colour, Point3f location, Matrix3f rotation, String file) throws LDRAWException {
 					println("1 "+colour+" "+location+" "+rotation+" "+file);
 				}
-				public void line(int colour, Point3f[] line) throws LDRAWException {
+				public void line(ColourReference colour, Point3f[] line) throws LDRAWException {
 					String l="2 "+colour;
 					for(Point3f p : line)
 						l = l+" "+p;
 					println(l);
 				}
-				public void triangle(int colour, Point3f[] triangle) throws LDRAWException {
+				public void triangle(ColourReference colour, Point3f[] triangle) throws LDRAWException {
 					String line="3 "+colour;
 					for(Point3f p : triangle)
 						line = line+" "+p;
 					println(line);
 				}
-				public void quadrilateral(int colour, Point3f[] quad) throws LDRAWException {
+				public void quadrilateral(ColourReference colour, Point3f[] quad) throws LDRAWException {
 					String line="4 "+colour;
 					for(Point3f p : quad)
 						line = line+" "+p;
 					println(line);
 				}
-				public void optionalLine(int colour, Point3f[] line, Point3f[] controlPoints) throws LDRAWException {
+				public void optionalLine(ColourReference colour, Point3f[] line, Point3f[] controlPoints) throws LDRAWException {
 					String l="5 "+colour;
 					for(Point3f p : line)
 						l = l+" "+p;

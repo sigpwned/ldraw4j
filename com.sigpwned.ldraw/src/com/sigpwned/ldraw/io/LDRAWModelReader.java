@@ -11,6 +11,8 @@ import java.util.List;
 import com.sigpwned.ldraw.io.handle.ldraw.AbstractLDRAWReadHandler;
 import com.sigpwned.ldraw.io.model.ModelState;
 import com.sigpwned.ldraw.io.model.Winding;
+import com.sigpwned.ldraw.model.Colour;
+import com.sigpwned.ldraw.model.colour.ColourReference;
 import com.sigpwned.ldraw.model.geometry.Matrix3f;
 import com.sigpwned.ldraw.model.geometry.Point3f;
 import com.sigpwned.ldraw.model.winding.BFC;
@@ -22,11 +24,13 @@ public class LDRAWModelReader {
 		private boolean inverted;
 		private boolean invertNext;
 		private ModelState modelState;
+		private Colour currentColour;
 		
 		public State(String name) {
 			this.modelState = new ModelState(name);
 			this.inverted = false;
 			this.invertNext = false;
+			this.currentColour = Colour.defaultColour();
 		}
 		
 		public boolean isInverted() {
@@ -47,6 +51,14 @@ public class LDRAWModelReader {
 		
 		public ModelState getModelState() {
 			return modelState;
+		}
+
+		public Colour getCurrentColour() {
+			return currentColour;
+		}
+
+		public void setCurrentColour(Colour currentColour) {
+			this.currentColour = currentColour;
 		}
 	}
 	
@@ -69,11 +81,11 @@ public class LDRAWModelReader {
 		name = name.replace('\\', File.separatorChar);
 		
 		File result=null;
-		for(File home : new File[]{new File(getConfig().getHome(), "parts"), new File(new File(getConfig().getHome(), "p"), "48"), new File(getConfig().getHome(), "p")}) {
+		for(File home : new File[]{new File(getConfig().getHome(), "parts"), new File(new File(getConfig().getHome(), "p"), "48"), new File(getConfig().getHome(), "p"), new File(System.getProperty("user.home"), "Temporary")}) {
 		// for(File home : new File[]{new File(getConfig().getHome(), "parts"), new File(getConfig().getHome(), "p")}) {
 			result = new File(home, name);
 			if(result.exists()) {
-				System.err.println(result.getAbsolutePath());
+				// System.err.println(result.getAbsolutePath());
 				break;
 			}
 		}
@@ -125,6 +137,10 @@ public class LDRAWModelReader {
 		stateStack.add(state);
 	}
 	
+	protected Colour eval(ColourReference colour) {
+		return colour.eval(getConfig().getColours(), top().getCurrentColour());
+	}
+	
 	private int depth=0;
 	protected void parse(Reader in) throws IOException, LDRAWException {
 		handler.enterFile(top().getModelState().getName());
@@ -160,18 +176,18 @@ public class LDRAWModelReader {
 						}
 					} else
 					if(bfc == BFC.INVERTNEXT) {
-						System.err.println("INVERTNEXT");
+						// System.err.println("INVERTNEXT");
 						top().setInvertNext(true);
 					} else
 					if(bfc == BFC.CLIP) {
-						System.err.println("BFC.CLIP");
+						// System.err.println("BFC.CLIP");
 						if(!top().getModelState().isClipping()) {
 							top().getModelState().setClipping(true);
 							handler.clipping(top().getModelState());
 						}
 					} else
 					if(bfc == BFC.NOCLIP) {
-						System.err.println("BFC.NOCLIP");
+						// System.err.println("BFC.NOCLIP");
 						if(top().getModelState().isClipping()) {
 							top().getModelState().setClipping(false);
 							handler.clipping(top().getModelState());
@@ -181,31 +197,31 @@ public class LDRAWModelReader {
 						throw new InternalLDRAWException("Unrecognized BFC: "+bfc);
 				}
 				
-				public void line(int colour, Point3f[] line) throws LDRAWException {
+				public void line(ColourReference colour, Point3f[] line) throws LDRAWException {
 					if(top().isInvertNext())
 						System.err.println("WARNING: Ignoring illegal INVERTNEXT");
-					handler.line(top().getModelState(), getConfig().getColour(colour), transform(line));
+					handler.line(top().getModelState(), eval(colour), transform(line));
 					top().setInvertNext(false);
 				}
 	
-				public void triangle(int colour, Point3f[] triangle) throws LDRAWException {
+				public void triangle(ColourReference colour, Point3f[] triangle) throws LDRAWException {
 					if(top().isInvertNext())
 						System.err.println("WARNING: Ignoring illegal INVERTNEXT");
-					handler.triangle(top().getModelState(), getConfig().getColour(colour), transform(triangle));
+					handler.triangle(top().getModelState(), eval(colour), transform(triangle));
 					top().setInvertNext(false);
 				}
 	
-				public void quadrilateral(int colour, Point3f[] quad) throws LDRAWException {
+				public void quadrilateral(ColourReference colour, Point3f[] quad) throws LDRAWException {
 					if(top().isInvertNext())
 						System.err.println("WARNING: Ignoring illegal INVERTNEXT");
-					handler.quadrilateral(top().getModelState(), getConfig().getColour(colour), transform(quad));
+					handler.quadrilateral(top().getModelState(), eval(colour), transform(quad));
 					top().setInvertNext(false);
 				}
 	
-				public void optionalLine(int colour, Point3f[] line, Point3f[] controlPoints) throws LDRAWException {
+				public void optionalLine(ColourReference colour, Point3f[] line, Point3f[] controlPoints) throws LDRAWException {
 					if(top().isInvertNext())
 						System.err.println("WARNING: Ignoring illegal INVERTNEXT");				
-					handler.optionalLine(top().getModelState(), getConfig().getColour(colour), transform(line), transform(controlPoints));
+					handler.optionalLine(top().getModelState(), eval(colour), transform(line), transform(controlPoints));
 					top().setInvertNext(false);
 				}
 				
@@ -232,14 +248,16 @@ public class LDRAWModelReader {
 					}
 					else
 						result = winding;
-					System.err.println("Winding = "+winding+" -> "+result+" ("+top().isInverted()+")");
+					// System.err.println("Winding = "+winding+" -> "+result+" ("+top().isInverted()+")");
 					return result;
 				}
 	
-				public void subfile(int colour, Point3f st, Matrix3f sr, String file) throws LDRAWException, IOException {
+				public void subfile(ColourReference colour, Point3f st, Matrix3f sr, String file) throws LDRAWException, IOException {
 					State newstate=new State(file);
 					
 					newstate.setInverted(top().isInverted() ^ top().isInvertNext());
+					
+					newstate.setCurrentColour(colour.eval(getConfig().getColours(), top().getCurrentColour()));
 	
 					if(newstate.isInverted())
 						newstate.getModelState().setWinding(Winding.CW);
@@ -260,10 +278,10 @@ public class LDRAWModelReader {
 					String padding="";
 					for(int i=0;i<depth;i++)
 						padding = padding+" ";
-					System.err.println(padding+"subfile -> "+newstate.isInverted()+" = "+newstate.getModelState().getName()+" ("+newstate.getModelState().getWinding()+")");
-					System.err.println(padding+sr);
-					System.err.println(padding+newstate.getModelState().getRotation());
-					System.err.println(padding+newstate.getModelState().getTranslation());
+					// System.err.println(padding+"subfile -> "+newstate.isInverted()+" = "+newstate.getModelState().getName()+" ("+newstate.getModelState().getWinding()+")");
+					// System.err.println(padding+sr);
+					// System.err.println(padding+newstate.getModelState().getRotation());
+					// System.err.println(padding+newstate.getModelState().getTranslation());
 					depth = depth+1;
 					
 					push(newstate);

@@ -68,4 +68,8 @@ public class RGBA {
 	public boolean isAlphaDefined() {
 		return getAlpha() != 255;
 	}
+	
+	public int hashCode() {
+		return toString().hashCode();
+	}
 }

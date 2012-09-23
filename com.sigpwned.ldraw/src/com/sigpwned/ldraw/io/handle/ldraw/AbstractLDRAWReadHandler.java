@@ -57,15 +57,15 @@ public abstract class AbstractLDRAWReadHandler implements LDRAWReadHandler {
 	}
 	public void meta(String line) throws LDRAWException {
 	}
-	public void subfile(int colour, Point3f location, Matrix3f rotation, String file) throws IOException, LDRAWException {
+	public void subfile(ColourReference colour, Point3f location, Matrix3f rotation, String file) throws IOException, LDRAWException {
 	}
-	public void line(int colour, Point3f[] line) throws LDRAWException {
+	public void line(ColourReference colour, Point3f[] line) throws LDRAWException {
 	}
-	public void triangle(int colour, Point3f[] triangle) throws LDRAWException {
+	public void triangle(ColourReference colour, Point3f[] triangle) throws LDRAWException {
 	}
-	public void quadrilateral(int colour, Point3f[] quad) throws LDRAWException {
+	public void quadrilateral(ColourReference colour, Point3f[] quad) throws LDRAWException {
 	}
-	public void optionalLine(int colour, Point3f[] line, Point3f[] controlPoints) throws LDRAWException {
+	public void optionalLine(ColourReference colour, Point3f[] line, Point3f[] controlPoints) throws LDRAWException {
 	}
 	public void comment(String comment) throws LDRAWException {
 	}
