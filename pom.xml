@@ -6,7 +6,7 @@
   <name>LDRAW4J</name>
   <description>Implementation of LDRAW file format reader in Java</description>
   <build>
-    <sourceDirectory>src</sourceDirectory>
+    <sourceDirectory>src/main/java</sourceDirectory>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
