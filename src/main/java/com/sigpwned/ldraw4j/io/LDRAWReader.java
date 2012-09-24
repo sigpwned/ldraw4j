@@ -344,8 +344,16 @@ public class LDRAWReader {
 			// This is typically the last line in a file. NBD.
 		}
 		else {
-			if(StringUtil.match(line, COMMENT) == null)
-				System.err.println("WARNING: Line not marked explicitly as a comment being interpreted as comment: "+line);
+			if(StringUtil.match(line, COMMENT) == null) {
+				if(line.equals("end of file")) {
+					// Ignore
+				} else
+				if(line.equals("conditional lines")) {
+					// Ignore
+				}
+				else
+					System.err.println("WARNING: Line not marked explicitly as a comment being interpreted as comment: "+line);
+			}
 			handler.comment(line);
 		}
 	}
