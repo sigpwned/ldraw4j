@@ -309,6 +309,10 @@ public class LDRAWModelReader {
 					
 					top().setInvertNext(false);
 				}
+
+				public void meta(String line) throws LDRAWException {
+					handler.meta(line);
+				}
 			}).read(in);
 		}
 		finally {

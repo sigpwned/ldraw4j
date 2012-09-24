@@ -35,4 +35,6 @@ public class AbstractLDRAWModelReadHandler implements LDRAWModelReadHandler {
 	}
 	public void leaveFile(String name) {
 	}
+	public void meta(String line) {
+	}
 }

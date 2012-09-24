@@ -196,7 +196,7 @@ public class LDRAWReader {
 
 	private static final Pattern INT=Pattern.compile("^\\d+$");
 	private static final Pattern COMMENT=Pattern.compile("^//");
-	private static final Pattern COMMAND=Pattern.compile("^(!\\w+|name:|author:|bfc\\b|clear\\b|pause\\b|print\\b|save\\b|step\\b|write\\b)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern COMMAND=Pattern.compile("^(!\\w+\\b|name:|author:|bfc\\b|clear\\b|pause\\b|print\\b|save\\b|step\\b|write\\b)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern AUTHOR_ARGS=Pattern.compile("^([^\\[]+?)?\\s*(?:\\[([^\\]]+)\\])?$");
 	private static final Pattern LDRAW_ORG_ARGS=Pattern.compile("^(part|subpart|primitive|48_primitive|shortcut|configuration)\\s+(\\S.*?\\s+)?(original|update\\s+(\\d+)-(\\d+)(?:-(\\d+))?)$", Pattern.CASE_INSENSITIVE);
 	private static final Pattern LICENSE_REDISTRIBUTABLE=Pattern.compile("(?!=not)\\s*redistributable", Pattern.CASE_INSENSITIVE);

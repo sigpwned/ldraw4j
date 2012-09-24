@@ -33,4 +33,6 @@ public interface LDRAWModelReadHandler {
 	public void enterFile(String name);
 
 	public void leaveFile(String name);
+	
+	public void meta(String line);
 }
